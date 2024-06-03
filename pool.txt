@@ -1,0 +1,166 @@
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
+public class ThreadPoolExample {
+
+    public static void main(String[] args) {
+        // Create a fixed-size thread pool with 4 threads
+        ExecutorService executor = Executors.newFixedThreadPool(4);
+
+        // Submit multiple tasks to the thread pool
+        for (int i = 1; i <= 10; i++) {
+            int taskId = i;
+            executor.submit(() -> performComplexCalculation(taskId));
+        }
+
+        // Gracefully shut down the executor service
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+    }
+
+    private static void performComplexCalculation(int taskId) {
+        System.out.println("Task " + taskId + " started by " + Thread.currentThread().getName());
+        try {
+            // Simulate complex calculation or I/O operation
+            Thread.sleep((int) (Math.random() * 5000)); // Random sleep between 0-5 seconds
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            System.err.println("Task " + taskId + " interrupted.");
+        }
+        System.out.println("Task " + taskId + " completed by " + Thread.currentThread().getName());
+    }
+}
+
+
+
+
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+
+public class PrimeNumberCalculator {
+
+    public static void main(String[] args) {
+        int upperLimit = 10000;
+        int numberOfThreads = 4;
+        String outputFilePath = "primes.txt";
+
+        ExecutorService executor = Executors.newFixedThreadPool(numberOfThreads);
+
+        // Submit tasks to the executor service
+        List<Future<List<Integer>>> futures = new ArrayList<>();
+        int chunkSize = upperLimit / numberOfThreads;
+        for (int i = 0; i < numberOfThreads; i++) {
+            int start = i * chunkSize + 1;
+            int end = (i == numberOfThreads - 1) ? upperLimit : start + chunkSize - 1;
+            futures.add(executor.submit(() -> findPrimesInRange(start, end)));
+        }
+
+        // Collect results from futures
+        List<Integer> allPrimes = new ArrayList<>();
+        for (Future<List<Integer>> future : futures) {
+            try {
+                allPrimes.addAll(future.get());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Shutdown the executor service
+        executor.shutdown();
+        try {
+            if (!executor.awaitTermination(60, TimeUnit.SECONDS)) {
+                executor.shutdownNow();
+            }
+        } catch (InterruptedException e) {
+            executor.shutdownNow();
+        }
+
+        // Use CompletableFuture to write results to a file asynchronously
+        CompletableFuture.runAsync(() -> writeToFile(allPrimes, outputFilePath))
+                         .thenRun(() -> System.out.println("Prime numbers have been written to the file."));
+    }
+
+    // Method to find prime numbers in a given range
+    private static List<Integer> findPrimesInRange(int start, int end) {
+        List<Integer> primes = new ArrayList<>();
+        for (int i = start; i <= end; i++) {
+            if (isPrime(i)) {
+                primes.add(i);
+            }
+        }
+        return primes;
+    }
+
+    // Helper method to check if a number is prime
+    private static boolean isPrime(int number) {
+        if (number <= 1) {
+            return false;
+        }
+        for (int i = 2; i <= Math.sqrt(number); i++) {
+            if (number % i == 0) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // Method to write the list of primes to a file
+    private static void writeToFile(List<Integer> primes, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (int prime : primes) {
+                writer.write(prime + "\n");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class ThreadSafeDemo {
+
+    public static void main(String[] args) {
+        Counter counter = new Counter();
+        ImmutableData immutableData = new ImmutableData(42);
+
+        Runnable incrementTask = () -> {
+            for (int i = 0; i < 5; i++) {
+                counter.increment();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        };
+
+        Runnable decrementTask = () -> {
+            for (int i = 0; i < 5; i++) {
+                counter.decrement();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
