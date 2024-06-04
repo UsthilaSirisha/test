@@ -1,0 +1,170 @@
+package com.functionalprogramming;
+ 
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
+ 
+public class BuiltInFunctionalInterfaceEx {
+ 
+	public static void main(String[] args) {
+		/*
+		//Predicate is a functional interface that represents a boolean-valued function of one argument
+		Predicate<String> isLongerThan5 = str -> str.length() > 5;
+		System.out.println(isLongerThan5.test("Hello")); // Output: false
+		System.out.println(isLongerThan5.test("Hello, World!")); // Output: true
+       */
+		/*
+		//Function is a functional interface that represents a function that takes one argument and produces a result.
+		Function<String, Integer> lengthFunction = str -> str.length();
+		System.out.println(lengthFunction.apply("Hello")); // Output: 5
+		*/
+		/*
+		//Consumer is a functional interface that represents an operation that accepts a single input argument and returns no result.
+		Consumer<String> printConsumer = str -> System.out.println(str);
+		printConsumer.accept("Hello, World!"); // Output: Hello, World!
+		*/
+		/*
+		//Supplier is a functional interface that represents a supplier of results.
+		 Supplier<String> stringSupplier = () -> "Hello, World!";
+         System.out.println(stringSupplier.get()); // Output: Hello, World!
+	    */
+
+	}
+ 
+}
+
+has context menu
+
+
+
+
+package com.functionalprogramming;
+import java.util.*;
+import java.util.function.*;
+public class MethodReferenceExample {
+ 
+	public static void main(String[] args) {
+		//Reference to a Static Method
+		Consumer<String> print = System.out::println;
+		print.accept("Hello, World!"); // Output: Hello, World!
+		//Reference to an Instance Method of a Particular Object
+		String str = "Hello, World!";
+		Supplier<Integer> lengthSupplier = str::length;
+		System.out.println(lengthSupplier.get()); // Output: 13
+		//Reference to an Instance Method of an Arbitrary Object of a Particular Type
+		Function<String, Integer> lengthFunction = String::length;
+		System.out.println(lengthFunction.apply("Hello")); // Output: 5
+		//Reference to a Constructor
+		Supplier<List<String>> listSupplier = ArrayList::new;
+		List<String> list = listSupplier.get();
+ 
+	}
+ 
+}
+
+has context menu
+
+
+
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class Person {
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    // Getters and setters (omitted for brevity)
+}
+
+public class SortByAge {
+
+    public static void main(String[] args) {
+        List<Person> people = new ArrayList<>();
+        people.add(new Person("Alice", 30));
+        people.add(new Person("Bob", 25));
+        people.add(new Person("Charlie", 35));
+
+        // Sort by age using lambda expression
+        Collections.sort(people, (p1, p2) -> p1.getAge() - p2.getAge());
+
+        System.out.println("Sorted by age:");
+        for (Person person : people) {
+            System.out.println(person.getName() + " (" + person.getAge() + ")");
+        }
+    }
+}
+
+
+
+
+
+
+
+import java.util.function.Predicate;
+import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
+
+public class Person {
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    // Other getters and setters (omitted for brevity)
+}
+
+public class FunctionalOperations {
+
+    public static void processPerson(Person person,
+                                     Predicate<Person> isAdult,
+                                     Function<Person, String> fullName,
+                                     Consumer<String> printPerson,
+                                     Supplier<String> defaultName) {
+
+        if (isAdult.test(person)) {
+            printPerson.accept(fullName.apply(person));
+        } else {
+            printPerson.accept(defaultName.get() + " (Minor)");
+        }
+    }
+
+    public static void main(String[] args) {
+        Person person1 = new Person("Alice", 30);
+        Person person2 = new Person("Bob", 15);
+
+        // Create functional interfaces
+        Predicate<Person> isAdult = p -> p.getAge() >= 18;
+        Function<Person, String> fullName = p -> p.getName() + " (age: " + p.getAge() + ")";
+        Consumer<String> printPerson = System.out::println;
+        Supplier<String> defaultName = () -> "Someone";
+
+        // Process person1
+        processPerson(person1, isAdult, fullName, printPerson, defaultName);
+
+        // Process person2
+        processPerson(person2, isAdult, fullName, printPerson, defaultName);
+    }
+}
+
+
