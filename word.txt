@@ -1,0 +1,46 @@
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+public class WordFrequencyCounter {
+
+    public static void main(String[] args) {
+        // Specify the file path
+        String filePath = "path/to/your/file.txt";
+
+        // Create a HashMap to store word frequencies
+        Map<String, Integer> wordCounts = new HashMap<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                // Split the line into words using a regular expression for better handling
+                String[] words = line.split("\\W+");
+
+                // Process each word
+                for (String word : words) {
+                    // Convert to lowercase for case-insensitive counting
+                    String lowerCaseWord = word.toLowerCase();
+
+                    // Update the word count
+                    if (wordCounts.containsKey(lowerCaseWord)) {
+                        wordCounts.put(lowerCaseWord, wordCounts.get(lowerCaseWord) + 1);
+                    } else {
+                        wordCounts.put(lowerCaseWord, 1);
+                    }
+                }
+            }
+
+            // Print the word frequencies
+            System.out.println("Word frequencies:");
+            for (Map.Entry<String, Integer> entry : wordCounts.entrySet()) {
+                System.out.println(entry.getKey() + ": " + entry.getValue());
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error reading file: " + e.getMessage());
+        }
+    }
+}
