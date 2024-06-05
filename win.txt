@@ -1,0 +1,249 @@
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
+public class NioFileCopy {
+
+    public static void main(String[] args) throws IOException {
+        // Specify source and destination file paths
+        String sourcePath = "path/to/source.txt";
+        String destPath = "path/to/destination.txt";
+
+        // Create Paths
+        Path source = Paths.get(sourcePath);
+        Path destination = Paths.get(destPath);
+
+        try (FileChannel inChannel = FileChannel.open(source, java.nio.file.StandardOpenOption.READ);
+             FileChannel outChannel = FileChannel.open(destination, java.nio.file.StandardOpenOption.CREATE, java.nio.file.StandardOpenOption.WRITE)) {
+
+            // Create a ByteBuffer with a reasonable buffer size
+            ByteBuffer buffer = ByteBuffer.allocate(1024);
+
+            while (true) {
+                int bytesRead = inChannel.read(buffer);
+                if (bytesRead == -1) {
+                    break;
+                }
+
+                // Flip the buffer to prepare for writing
+                buffer.flip();
+
+                // Write the data from the buffer to the destination channel
+                outChannel.write(buffer);
+
+                // Clear the buffer for the next read
+                buffer.clear();
+            }
+
+            System.out.println("File copied successfully using NIO Channels and Buffers.");
+        } catch (IOException e) {
+            System.err.println("Error copying file: " + e.getMessage());
+        }
+    }
+}
+
+
+
+
+
+
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class SimpleHttpClient {
+
+    public static void main(String[] args) throws IOException {
+
+        // Specify the URL to connect to
+        String urlString = "https://www.example.com"; // Replace with your desired URL
+
+        try {
+            URL url = new URL(urlString);
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+
+            // Set request method (GET by default)
+            connection.setRequestMethod("GET");
+
+            // Set connection timeouts (optional)
+            connection.setConnectTimeout(5000); // 5 seconds connect timeout
+            connection.setReadTimeout(10000); // 10 seconds read timeout
+
+            // Connect to the server
+            connection.connect();
+
+            // Get response code and message
+            int responseCode = connection.getResponseCode();
+            String responseMessage = connection.getResponseMessage();
+
+            System.out.println("Response Code: " + responseCode);
+            System.out.println("Response Message: " + responseMessage);
+
+            // Print response headers (optional)
+            if (responseCode >= 200 && responseCode < 300) {
+                printHeaders(connection);
+            }
+
+            // Print response body
+            if (responseCode >= 200 && responseCode < 300) {
+                printResponseBody(connection.getInputStream());
+            } else {
+                System.err.println("Error: HTTP response code " + responseCode);
+            }
+
+        } catch (IOException e) {
+            System.err.println("Error connecting to URL: " + e.getMessage());
+        }
+    }
+
+    private static void printHeaders(HttpURLConnection connection) throws IOException {
+        System.out.println("=== Headers ===");
+        for (int i = 1; ; i++) {
+            String headerName = connection.getHeaderField(i);
+            if (headerName == null) {
+                break;
+            }
+            String headerValue = connection.getHeaderField(i + 1);
+            System.out.println(headerName + ": " + headerValue);
+        }
+    }
+
+    private static void printResponseBody(InputStream inputStream) throws IOException {
+        System.out.println("=== Response Body ===");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
+        String line;
+        while ((line = reader.readLine()) != null) {
+            System.out.println(line);
+        }
+        reader.close();
+    }
+}
+
+
+
+
+
+
+import java.io.*;
+import java.net.*;
+import java.util.Scanner;
+
+// Serializable class to hold the operation details
+class Operation implements Serializable {
+    private static final long serialVersionUID = 1L;
+    int num1;
+    int num2;
+    String operator;
+
+    public Operation(int num1, int num2, String operator) {
+        this.num1 = num1;
+        this.num2 = num2;
+        this.operator = operator;
+    }
+
+    public int getNum1() {
+        return num1;
+    }
+
+    public int getNum2() {
+        return num2;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+}
+
+// Main class to run both server and client
+public class TCPClientServer {
+    public static void main(String[] args) {
+        new Thread(() -> startServer()).start(); // Start the server in a new thread
+        try {
+            Thread.sleep(1000); // Ensure the server starts before the client
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        startClient(); // Start the client
+    }
+
+    // Server method
+    public static void startServer() {
+        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+            System.out.println("Server started. Waiting for a client...");
+            try (Socket socket = serverSocket.accept();
+                 ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+                 ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream())) {
+
+                System.out.println("Client connected.");
+
+                // Read the operation from the client
+                Operation operation = (Operation) ois.readObject();
+                int num1 = operation.getNum1();
+                int num2 = operation.getNum2();
+                String operator = operation.getOperator();
+
+                // Compute the result
+                int result = 0;
+                switch (operator) {
+                    case "+":
+                        result = num1 + num2;
+                        break;
+                    case "-":
+                        result = num1 - num2;
+                        break;
+                    case "*":
+                        result = num1 * num2;
+                        break;
+                    case "/":
+                        result = num1 / num2;
+                        break;
+                    default:
+                        System.out.println("Invalid operator");
+                }
+
+                // Send the result back to the client
+                oos.writeObject(result);
+                System.out.println("Result sent to client: " + result);
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Client method
+    public static void startClient() {
+        try (Socket socket = new Socket("localhost", 5000);
+             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+             ObjectInputStream ois = new ObjectInputStream(socket.getInputStream())) {
+
+            // Input from user
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Enter first number: ");
+            int num1 = scanner.nextInt();
+            System.out.print("Enter second number: ");
+            int num2 = scanner.nextInt();
+            System.out.print("Enter operator (+, -, *, /): ");
+            String operator = scanner.next();
+
+            // Create an operation object
+            Operation operation = new Operation(num1, num2, operator);
+
+            // Send the operation to the server
+            oos.writeObject(operation);
+
+            // Receive the result from the server
+            int result = (int) ois.readObject();
+            System.out.println("Result from server: " + result);
+
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
