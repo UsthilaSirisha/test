@@ -1,0 +1,408 @@
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class EmployeeSerialization {
+
+    public static void main(String[] args) {
+        String fileName = "employee.ser";
+
+        // Employee object to serialize
+        Employee emp = new Employee("Alice", 30, 85000.0);
+
+        // Serialize the object
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+            oos.writeObject(emp);
+            System.out.println("Employee object serialized successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        // Deserialized object to hold the recovered state
+        Employee deserializedEmp = null;
+
+        // Deserialize the object (if the file exists)
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+            while (true) { // Loop to handle potential EOFException
+                try {
+                    deserializedEmp = (Employee) ois.readObject();
+                    System.out.println("Employee object deserialized successfully!");
+                    break; // Exit loop on successful deserialization
+                } catch (EOFException e) {
+                    // Reached end of file (no more objects to deserialize)
+                    System.out.println("End of file reached (no more objects to deserialize).");
+                    break;
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        // Print deserialized employee details (if available)
+        if (deserializedEmp != null) {
+            System.out.println("Employee details:");
+            System.out.println("Name: " + deserializedEmp.getName());
+            System.out.println("Age: " + deserializedEmp.getAge());
+            // Salary won't be deserialized as it's transient
+        }
+    }
+}
+
+class Employee implements Serializable {
+
+    private String name;
+    private int age;
+    private transient double salary; // Mark salary as transient to avoid serialization
+
+    public Employee(String name, int age, double salary) {
+        this.name = name;
+        this.age = age;
+        this.salary = salary;
+    }
+
+    // Getters and setters (omitted for brevity)
+}
+
+
+
+
+
+Another
+
+
+
+import java.io.EOFException;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+public class EmployeeSerialization {
+
+    public static void main(String[] args) {
+
+        String fileName = "employee.ser";
+
+        // Create an Employee object (replace with your data)
+        Employee emp = new Employee("Alice", 30, 85000.0);
+
+        // Serialize the object
+        serializeObject(emp, fileName);
+
+        // Deserialize the object
+        Employee deserializedEmp = deserializeObject(fileName);
+
+        if (deserializedEmp != null) {
+            System.out.println("Employee details after deserialization:");
+            System.out.println("Name: " + deserializedEmp.getName());
+            System.out.println("Age: " + deserializedEmp.getAge());
+            // Salary won't be deserialized as it's transient
+        } else {
+            System.out.println("Deserialization failed or file might be empty.");
+        }
+    }
+
+    private static void serializeObject(Employee emp, String fileName) {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(fileName))) {
+            oos.writeObject(emp);
+            System.out.println("Employee object serialized successfully!");
+        } catch (IOException e) {
+            System.err.println("Error during serialization: " + e.getMessage());
+        }
+    }
+
+    private static Employee deserializeObject(String fileName) {
+        Employee emp = null;
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(fileName))) {
+            while (true) { // Handle potential EOFException for empty files
+                try {
+                    emp = (Employee) ois.readObject();
+                    break; // Object successfully read
+                } catch (EOFException e) {
+                    // Reached end of file (empty file)
+                    System.out.println("Deserialization might have failed: EOF reached (possibly empty file).");
+                    break;
+                }
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error during deserialization: " + e.getMessage());
+        }
+        return emp;
+    }
+}
+
+class Employee implements Serializable {
+
+    private String name;
+    private int age;
+    private transient double salary; // Mark salary as transient to avoid serialization
+
+    public Employee(String name, int age, double salary) {
+        this.name = name;
+        this.age = age;
+        this.salary = salary;
+    }
+
+    // Getters and setters (omitted for brevity)
+}
+
+
+
+
+buffer reader,writer
+
+
+
+
+
+package com.iobasics;
+ 
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+ 
+public class BufferedFileWritingExample {
+    public static void main(String[] args) {
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter("example1.txt"));
+            writer.write("Hello, World!");
+            writer.newLine();
+            writer.write("This is a new line.");
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+}
+
+package com.iobasics;   import java.io.Buff... by Maria (Unverified)
+Maria (Unverified)
+2:14 PM
+package com.iobasics;
+ 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+ 
+public class BufferedFileReadingExample {
+    public static void main(String[] args) {
+        BufferedReader reader = null;
+        try {
+            reader = new BufferedReader(new FileReader("example1.txt"));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (reader != null) {
+                    reader.close();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+}
+
+ streams
+
+
+
+
+
+//Byte Stream Example
+
+//Reading from a File using FileInputStream:
+
+import java.io.FileInputStream;
+
+import java.io.IOException;
+ 
+public class ByteStreamExample { // To read
+
+    public static void main(String[] args) {
+
+        try (FileInputStream inputStream = new FileInputStream("example.txt")) {
+
+            int data;
+
+            while ((data = inputStream.read()) != -1) {
+
+                System.out.print((char) data);
+
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+}
+[2:20 PM] Maria (Unverified)
+package com.javaio;
+
+//Byte Stream Example
+
+//Writing to a File using FileOutputStream:
+
+import java.io.FileOutputStream;
+
+import java.io.IOException;
+ 
+public class ByteStreamExample2 {// To Write
+
+    public static void main(String[] args) {
+
+        try (FileOutputStream outputStream = new FileOutputStream("example.txt")) {
+
+            String text = "Hello, World!";
+
+            outputStream.write(text.getBytes());
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        }
+
+    }
+
+
+
+
+serializable,deseriable
+
+
+
+
+
+//Write
+
+import java.io.FileOutputStream;
+
+import java.io.IOException;
+
+import java.io.ObjectOutputStream;
+
+import java.io.Serializable;
+ 
+class Person implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+
+    private int age;
+ 
+    public Person(String name, int age) {
+
+        this.name = name;
+
+        this.age = age;
+
+    }
+ 
+    @Override
+
+    public String toString() {
+
+        return "Person{name='" + name + "', age=" + age + '}';
+
+    }
+
+}
+ 
+public class SerializationExample {
+
+    public static void main(String[] args) {
+
+        Person person = new Person("John Doe", 30);
+ 
+        try (FileOutputStream fileOut = new FileOutputStream("person.ser");
+
+             ObjectOutputStream out = new ObjectOutputStream(fileOut)) {
+
+            out.writeObject(person);
+
+            System.out.println("Serialized data is saved in person.ser");
+
+        } catch (IOException i) {
+
+            i.printStackTrace();
+
+        }
+
+    }
+
+}
+[2:29 PM] Maria (Unverified)
+package com.javaio;
+
+//Read
+ 
+import java.io.FileInputStream;
+
+import java.io.IOException;
+
+import java.io.ObjectInputStream;
+ 
+public class DeserializationExample {
+
+    public static void main(String[] args) {
+
+        Person person = null;
+ 
+        try (FileInputStream fileIn = new FileInputStream("person.ser");
+
+             ObjectInputStream in = new ObjectInputStream(fileIn)) {
+
+            person = (Person) in.readObject();
+
+        } catch (IOException i) {
+
+            i.printStackTrace();
+
+        } catch (ClassNotFoundException c) {
+
+            System.out.println("Person class not found");
+
+            c.printStackTrace();
+
+        }
+ 
+        System.out.println("Deserialized Person...");
+
+        System.out.println(person);
+
+    }
+
+}
+
+
+
+
+[2:32 PM] Maria (Unverified) 
+
+
+
+
