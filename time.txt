@@ -1,0 +1,176 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+
+public class DaysBetweenDates {
+
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
+        // Prompt for dates
+        System.out.print("Enter first date (YYYY-MM-DD): ");
+        String firstDateString = scanner.nextLine();
+        System.out.print("Enter second date (YYYY-MM-DD): ");
+        String secondDateString = scanner.nextLine();
+
+        // Parse dates
+        LocalDate firstDate = LocalDate.parse(firstDateString, DateTimeFormatter.ISO_DATE);
+        LocalDate secondDate = LocalDate.parse(secondDateString, DateTimeFormatter.ISO_DATE);
+
+        // Calculate difference in days
+        long daysBetween = ChronoUnit.DAYS.between(firstDate, secondDate);
+
+        // Print result
+        System.out.println("Number of days between " + firstDateString + " and " + secondDateString + ": " + daysBetween);
+    }
+}
+
+
+
+
+
+
+
+
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Scanner;
+
+public class TimezoneConverter {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        // Prompt the user to enter the time
+        System.out.print("Enter the time (yyyy-MM-dd HH:mm): ");
+        String timeString = scanner.nextLine();
+
+        // Prompt the user to enter the source timezone
+        System.out.print("Enter the source timezone (e.g., America/New_York): ");
+        String sourceTimezone = scanner.nextLine();
+
+        // Prompt the user to enter the target timezone
+        System.out.print("Enter the target timezone (e.g., Europe/London): ");
+        String targetTimezone = scanner.nextLine();
+
+        // Parse the input time
+        LocalDateTime localDateTime = LocalDateTime.parse(timeString, formatter);
+
+        // Apply the source timezone
+        ZoneId sourceZoneId = ZoneId.of(sourceTimezone);
+        ZonedDateTime sourceZonedDateTime = ZonedDateTime.of(localDateTime, sourceZoneId);
+
+        // Convert to the target timezone
+        ZoneId targetZoneId = ZoneId.of(targetTimezone);
+        ZonedDateTime targetZonedDateTime = sourceZonedDateTime.withZoneSameInstant(targetZoneId);
+
+        // Output the result
+        System.out.println("Time in " + targetTimezone + ": " + targetZonedDateTime.format(formatter));
+    }
+}
+
+
+
+
+
+
+
+
+package com.java8dateandtime;
+ 
+import java.time.LocalDateTime;
+import java.time.Month;
+ 
+public class Example2 {
+	public static void main(String[] args) {
+		LocalDateTime dt=LocalDateTime.now();
+		//System.out.println(dt);
+		int d=dt.getDayOfMonth();
+		int m=dt.getMonthValue();
+		int y=dt.getYear();
+		//System.out.printf("%d-%d-%d",d,m,y);
+		//System.out.println();
+		int h=dt.getHour();
+		int mi=dt.getMinute();
+		int s=dt.getSecond();
+		int n=dt.getNano();
+		//System.out.printf("%d:%d:%d:%d",h,mi,s,n);
+		//LocalDateTime.of(yy,mm,dd,h,m,s,n);
+		LocalDateTime dt1=LocalDateTime.of(1993,Month.JUNE,03,8,32);
+		System.out.println("After 6 months "+dt1.plusMonths(5));
+		System.out.println("After 6 months "+dt1.minusMonths(5));
+}
+}
+
+
+
+
+
+
+
+
+package com.java8dateandtime;
+ 
+import java.time.LocalDate;
+import java.time.Period;
+ 
+public class Example3 {
+ 
+	public static void main(String[] args) {
+		LocalDate birthday=LocalDate.of(2001, 6, 13);
+		LocalDate currentdate=LocalDate.now();
+	Period p=Period.between(birthday, currentdate);
+System.out.printf("Your age is %d years %d months and % days",p.getYears(),p.getMonths(),p.getDays());
+	}
+ 
+}
+ 
+
+
+
+
+
+
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+ 
+public class Example4 {
+public static void main(String[] args) {
+	ZoneId zone=ZoneId.systemDefault();
+	System.out.println(zone);
+	ZoneId ame =ZoneId.of("Asia/Calcutta");
+	ZonedDateTime ztamer=ZonedDateTime.now(ame);
+	System.out.println(ztamer);
+}
+}
+
+
+
+
+
+
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
+ 
+public class TemporalAdjusterExample {
+	public static void main(String[] args) {
+        LocalDate today = LocalDate.now();
+        System.out.println("Today: " + today);
+ 
+        // Find the first day of the current month
+        LocalDate firstDayOfMonth = today.with(TemporalAdjusters.firstDayOfMonth());
+        System.out.println("First day of this month: " + firstDayOfMonth);
+ 
+        // Find the next Monday
+        LocalDate nextMonday = today.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        System.out.println("Next Monday: " + nextMonday);
+ 
+        // Find the last day of the current month
+        LocalDate lastDayOfMonth = today.with(TemporalAdjusters.lastDayOfMonth());
+        System.out.println("Last day of this month: " + lastDayOfMonth);
+    }
+}
